@@ -21,7 +21,7 @@ if __name__ == '__main__':
     device = torch.device("cuda:0")
 
     # construct noise
-    beta_t = (beta[1] - beta[0]) * torch.linspace(0, 1, timesteps + 1, device=device + beta[0])
+    beta_t = (beta[1] - beta[0]) * torch.linspace(0, 1, timesteps + 1, device=device) + beta[0]
     alpha_t = 1 - beta_t
     alpha_bar_t = torch.cumsum(alpha_t.log(), dim=0).exp()
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             loss_val.backward()
             optimizer.step()
             mean_loss += loss_val.item()
-        torch.save(model.state_dict(), f"params/model_{epoch}.pth")
+        torch.save(model.state_dict(), f"model.pth")
         scheduler.step()
         print(f"Loss: {mean_loss/len(dataloader)}")
         print("-------------------------------------\n")
