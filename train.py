@@ -4,6 +4,7 @@ import tqdm
 from model.ContextUnet import ContextUnet
 from dataloader import spriteDataset, get_transforms
 from torch.utils.data import DataLoader
+import pandas as pd
 
 def add_noise(x0, epsilon, t, alpha_bar_t): # equation 68
     return torch.sqrt(alpha_bar_t[t, None, None, None]) * x0 + torch.sqrt(1 - alpha_bar_t[t, None, None, None]) * epsilon 
@@ -40,11 +41,11 @@ if __name__ == '__main__':
     loss = nn.MSELoss()
 
     model.train()
-    for epoch in range(epochs):
-        print(f"Epoch {epoch}")
-        trange = tqdm.tqdm(dataloader)
+    trange = tqdm.tqdm(range(epochs))
+    mean_loss_list = []
+    for epoch in trange:
         mean_loss = 0
-        for x, y in trange:
+        for x, y in dataloader:
             x = x.to(device)
             # add noise
             noise = torch.randn_like(x)
@@ -60,5 +61,6 @@ if __name__ == '__main__':
             mean_loss += loss_val.item()
         torch.save(model.state_dict(), f"model.pth")
         scheduler.step()
-        print(f"Loss: {mean_loss/len(dataloader)}")
-        print("-------------------------------------\n")
+        mean_loss_list.append(mean_loss/len(dataloader))
+        pd.DataFrame(mean_loss_list).to_csv("loss.csv", index=False, header=None)
+        trange.set_postfix({"Loss": mean_loss/len(dataloader)})
