@@ -89,7 +89,8 @@ class ContextUnet(nn.Module):
             nn.GELU(),
             nn.ConvTranspose2d(hidden_dim*2, hidden_dim*2, self.picture_shape//4, self.picture_shape//4),
             nn.GroupNorm(8, hidden_dim*2),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.AvgPool2d((2)),
         )
         self.up1 = UnetUp(hidden_dim*4, hidden_dim)
         self.up2 = UnetUp(hidden_dim*2, hidden_dim)
