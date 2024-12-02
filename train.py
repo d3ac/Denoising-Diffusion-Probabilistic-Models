@@ -17,7 +17,7 @@ if __name__ == '__main__':
     context_dim = 5
     picture_shape = 16
     batch_size = 128
-    epochs = 100
+    epochs = 32
     lr = 1e-3
     device = torch.device("cuda:0")
 
@@ -25,6 +25,7 @@ if __name__ == '__main__':
     beta_t = (beta[1] - beta[0]) * torch.linspace(0, 1, timesteps + 1, device=device) + beta[0]
     alpha_t = 1 - beta_t
     alpha_bar_t = torch.cumsum(alpha_t.log(), dim=0).exp()
+    alpha_bar_t[0]= 1
 
     # model
     model = ContextUnet(in_channels=3, hidden_dim=hidden_dim, context_dim=context_dim, picture_shape=picture_shape).to(device)
@@ -37,13 +38,13 @@ if __name__ == '__main__':
 
     # train
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=lr, end_factor=lr*1e-3, total_iters=epochs)
     loss = nn.MSELoss()
 
     model.train()
     trange = tqdm.tqdm(range(epochs))
     mean_loss_list = []
     for epoch in trange:
+        optimizer.param_groups[0]['lr'] = lr * (1 - epoch/epochs)
         mean_loss = 0
         for x, y in dataloader:
             x = x.to(device)
@@ -54,13 +55,12 @@ if __name__ == '__main__':
             # predict noise
             pred_noise = model(x_t, t/timesteps)
             # backprop
-            loss_val = loss(pred_noise, noise)
+            l = loss(pred_noise, noise)
             optimizer.zero_grad()
-            loss_val.backward()
+            l.backward()
             optimizer.step()
-            mean_loss += loss_val.item()
+            mean_loss += l.item()
         torch.save(model.state_dict(), f"model.pth")
-        scheduler.step()
         mean_loss_list.append(mean_loss/len(dataloader))
         pd.DataFrame(mean_loss_list).to_csv("loss.csv", index=False, header=None)
         trange.set_postfix({"Loss": mean_loss/len(dataloader)})
