@@ -55,7 +55,7 @@ def plot_sample(x_gen_store, n_sample, nrows, save_dir, fn,  w, save=False):
                 axs[row, col].clear()
                 axs[row, col].set_xticks([])
                 axs[row, col].set_yticks([])
-                plots.append(axs[row, col].imshow(store[i,(row*ncols)+col]))
+                plots.append(axs[row, col].imshow(store[i,(row*ncols)+col], cmap='gray'))
         return plots
     ani = FuncAnimation(fig, animate_diff, fargs=[nsx_gen_store],  interval=200, blit=False, repeat=True, frames=nsx_gen_store.shape[0]) 
     plt.close()  

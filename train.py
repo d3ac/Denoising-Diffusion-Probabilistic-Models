@@ -22,9 +22,9 @@ if __name__ == '__main__':
     epochs = 32
     lr = 1e-3
     device = torch.device("cuda:0")
-    # dataset = "sprites_v1"
+    dataset = "sprites_v1"
     # dataset = "CIFA10"
-    dataset = "MNIST"
+    # dataset = "MNIST"
 
     # construct noise
     beta_t = (beta[1] - beta[0]) * torch.linspace(0, 1, timesteps + 1, device=device) + beta[0]
