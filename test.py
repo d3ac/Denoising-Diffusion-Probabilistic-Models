@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 from IPython.display import HTML
 from utils_draw import plot_sample
 
-def denoise(x, t, pred_noise, beta_t, alpha_t, alpha_bar_t, z=None):
+def denoise(x_t, t, pred_noise, beta_t, alpha_t, alpha_bar_t, z=None):
     if z is None:
-        z = torch.randn_like(x)
-    noise = torch.sqrt(beta_t[t]) * z
-    mean = (x - pred_noise * ((1 - alpha_t[t]) / (1 - alpha_bar_t[t]).sqrt())) / alpha_t[t].sqrt()
+        z = torch.randn_like(x_t)
+    noise = torch.sqrt(beta_t[t]) * z # this is a approximation in the paper 3.2
+    mean = (x_t - pred_noise * ((1 - alpha_t[t]) / (1 - alpha_bar_t[t]).sqrt())) / alpha_t[t].sqrt()
     return mean + noise
 
 @torch.no_grad()
@@ -50,16 +50,18 @@ if __name__ == '__main__':
 
     # model
     model = ContextUnet(in_channels=3, hidden_dim=hidden_dim, context_dim=context_dim, picture_shape=picture_shape).to(device)
-    model.load_state_dict(torch.load("model.pth"))
-
-    # dataset
-    feature_file = "/home/d3ac/Desktop/dataset/sprites_v1/sprites_1788_16x16.npy"
-    label_file = "/home/d3ac/Desktop/dataset/sprites_v1/sprite_labels_nc_1788_16x16.npy"
-    dataset = spriteDataset(feature_file, label_file, transform=get_transforms())
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=7)
+    model.load_state_dict(torch.load("model.pth", weights_only=True))
 
     # test
     model.eval()
-    plt.clf()
-    samples, intermediate_ddpm = sample(32)
-    animation_ddpm = plot_sample(intermediate_ddpm, 32, 4, 'img', "ani_run", None, save=True)
+    n_display = 16
+    row = 2
+    samples, intermediate_ddpm = sample(n_display)
+    
+    # draw
+    fig, axes = plt.subplots(row, n_display//row, figsize=(16, 4))
+    for i in range(row):
+        for j in range(n_display//row):
+            axes[i, j].imshow(samples[i*n_display//row+j].permute(1, 2, 0).cpu().numpy())
+            axes[i, j].axis('off')
+    plt.show()
