@@ -26,7 +26,7 @@ def sample(n_sample, save_rate=20):
         z = torch.randn_like(samples) if i > 1 else 0
         epsilons = model(samples, t)
         samples = denoise(samples, i, epsilons, beta_t, alpha_t, alpha_bar_t, z)
-        if i % save_rate == 0 or timesteps == i or i <= 8:
+        if i % save_rate == 0 or timesteps == i or i <= 8 * save_rate:
             intermediate.append(samples.detach().cpu().numpy())
     intermediate = np.stack(intermediate)
     return samples, intermediate
@@ -40,9 +40,9 @@ if __name__ == '__main__':
     picture_shape = 32
     batch_size = 128
     device = torch.device("cuda:0")
-    # dataset = "sprites_v1"
+    dataset = "sprites_v1"
     # dataset = "CIFA10"
-    dataset = "MNIST"
+    # dataset = "MNIST"
 
     # construct noise
     beta_t = (beta[1] - beta[0]) * torch.linspace(0, 1, timesteps + 1, device=device) + beta[0]
@@ -58,10 +58,10 @@ if __name__ == '__main__':
     model.eval()
     n_display = 16
     row = 2
-    samples, intermediate_ddpm = sample(n_display)
+    samples, intermediate_ddpm = sample(n_display, save_rate=5)
     samples = (samples - samples.min()) / (samples.max() - samples.min()) # clip to [0, 1]
     intermediate_ddpm = (intermediate_ddpm - intermediate_ddpm.min()) / (intermediate_ddpm.max() - intermediate_ddpm.min()) # clip to [0, 1]
-    
+    0
     # draw
     fig, axes = plt.subplots(row, n_display//row, figsize=(16, 4))
     for i in range(row):

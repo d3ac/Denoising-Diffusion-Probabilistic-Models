@@ -41,7 +41,7 @@ def plot_grid(x,n_sample,n_rows,save_dir,w):
     print('saved image at ' + save_dir + f"run_image_w{w}.png")
     return grid
 
-def plot_sample(x_gen_store, n_sample, nrows, save_dir, fn,  w, save=False):
+def plot_sample(x_gen_store, n_sample, nrows, save_dir, fn,  w, save=False, Name=None, fps=30):
     ncols = n_sample//nrows
     sx_gen_store = np.moveaxis(x_gen_store,2,4)                               
     nsx_gen_store = norm_all(sx_gen_store, sx_gen_store.shape[0], n_sample)  
@@ -60,6 +60,6 @@ def plot_sample(x_gen_store, n_sample, nrows, save_dir, fn,  w, save=False):
     ani = FuncAnimation(fig, animate_diff, fargs=[nsx_gen_store],  interval=200, blit=False, repeat=True, frames=nsx_gen_store.shape[0]) 
     plt.close()  
     if save:
-        ani.save(save_dir + f"{fn}_w{w}.gif", dpi=100, writer=PillowWriter(fps=5))
-        print('saved gif at ' + save_dir + f"{fn}_w{w}.gif")
+        ani.save(save_dir + f"{Name}.gif", dpi=100, writer=PillowWriter(fps=fps))
+        print('saved gif at ' + save_dir + f"{fn}.gif")
     return ani

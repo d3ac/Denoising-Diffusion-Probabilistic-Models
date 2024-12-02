@@ -45,8 +45,7 @@ if __name__ == '__main__':
     if dataset == "sprites_v1":
         feature_file = "/home/d3ac/Desktop/dataset/sprites_v1/sprites_1788_16x16.npy"
         label_file = "/home/d3ac/Desktop/dataset/sprites_v1/sprite_labels_nc_1788_16x16.npy"
-        dataset = spriteDataset(feature_file, label_file, transform=get_transforms())
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=7, pin_memory=True)
+        dataloader = DataLoader(spriteDataset(feature_file, label_file, transform=get_transforms()), batch_size=batch_size, shuffle=True, num_workers=7, pin_memory=True)
     elif dataset == "CIFA10":
         dataloader = DataLoader(datasets.CIFAR10(root="/home/d3ac/Desktop/dataset", train=True, download=True, transform=trans), batch_size=batch_size, shuffle=True, num_workers=7, pin_memory=True)
     elif dataset == "MNIST":
