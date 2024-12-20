@@ -87,7 +87,7 @@ if __name__ == '__main__':
     samples, intermediate_ddpm = sample(n_display, save_rate=save_rate)
     samples = (samples - samples.min()) / (samples.max() - samples.min()) # clip to [0, 1]
     intermediate_ddpm = (intermediate_ddpm - intermediate_ddpm.min()) / (intermediate_ddpm.max() - intermediate_ddpm.min()) # clip to [0, 1]
-    0
+    
     # draw
     fig, axes = plt.subplots(row, n_display//row, figsize=(n_sample, 4))
     for i in range(row):
